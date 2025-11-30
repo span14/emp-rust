@@ -102,22 +102,20 @@ impl Block {
     #[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
     #[target_feature(enable = "pclmulqdq")]
     unsafe fn clmul_unsafe(self, x: &Self) -> (Block, Block) {
-        unsafe {
-            let h = self.0;
-            let y = x.0;
+        let h = self.0;
+        let y = x.0;
 
-            let tmp3 = _mm_clmulepi64_si128(h, y, 0x00);
-            let tmp4 = _mm_clmulepi64_si128(h, y, 0x10);
-            let tmp5 = _mm_clmulepi64_si128(h, y, 0x01);
-            let tmp6 = _mm_clmulepi64_si128(h, y, 0x11);
+        let tmp3 = _mm_clmulepi64_si128(h, y, 0x00);
+        let tmp4 = _mm_clmulepi64_si128(h, y, 0x10);
+        let tmp5 = _mm_clmulepi64_si128(h, y, 0x01);
+        let tmp6 = _mm_clmulepi64_si128(h, y, 0x11);
 
-            let tmp4 = _mm_xor_si128(tmp4, tmp5);
-            let tmp5 = _mm_slli_si128(tmp4, 8);
-            let tmp4 = _mm_srli_si128(tmp4, 8);
-            let tmp3 = _mm_xor_si128(tmp3, tmp5);
-            let tmp6 = _mm_xor_si128(tmp6, tmp4);
-            (Block(tmp3), Block(tmp6))
-        }
+        let tmp4 = _mm_xor_si128(tmp4, tmp5);
+        let tmp5 = _mm_slli_si128(tmp4, 8);
+        let tmp4 = _mm_srli_si128(tmp4, 8);
+        let tmp3 = _mm_xor_si128(tmp3, tmp5);
+        let tmp6 = _mm_xor_si128(tmp6, tmp4);
+        (Block(tmp3), Block(tmp6))
     }
 
     /// The multiplication of two field elements.
@@ -476,10 +474,10 @@ impl MulAssign for Block {
     }
 }
 
-impl rand::distributions::Distribution<Block> for rand::distributions::Standard {
+impl rand::distr::Distribution<Block> for rand::distr::StandardUniform {
     #[inline]
     fn sample<R: rand::Rng + ?Sized>(&self, rng: &mut R) -> Block {
-        Block::from(rng.gen::<u128>())
+        Block::from(rng.random::<u128>())
     }
 }
 
@@ -487,19 +485,19 @@ impl rand::distributions::Distribution<Block> for rand::distributions::Standard 
 fn type_test() {
     use rand::{Rng, SeedableRng};
     use rand_chacha::ChaCha12Rng;
-    let mut rng = ChaCha12Rng::from_entropy();
+    let mut rng = ChaCha12Rng::from_os_rng();
 
-    let x: [u8; 16] = rng.gen();
+    let x: [u8; 16] = rng.random();
     let blk = Block::from(x);
     let _x: [u8; 16] = blk.into();
     assert_eq!(x, _x);
 
-    let x: [u64; 2] = rng.gen();
+    let x: [u64; 2] = rng.random();
     let blk = Block::from(x);
     let _x: [u64; 2] = blk.into();
     assert_eq!(x, _x);
 
-    let x: u128 = rng.gen();
+    let x: u128 = rng.random();
     let blk = Block::from(x);
     let _x: u128 = blk.into();
     assert_eq!(x, _x);
@@ -544,9 +542,9 @@ fn gfmul_test() {
 fn bit_test() {
     use rand::{Rng, SeedableRng};
     use rand_chacha::ChaCha12Rng;
-    let mut rng = ChaCha12Rng::from_entropy();
-    let x: u128 = rng.gen();
-    let y: u128 = rng.gen();
+    let mut rng = ChaCha12Rng::from_os_rng();
+    let x: u128 = rng.random();
+    let y: u128 = rng.random();
 
     let x: Block = Block::from(x);
     let y: Block = Block::from(y);
@@ -575,9 +573,9 @@ fn bit_test() {
 fn lsb_test() {
     use rand::{Rng, SeedableRng};
     use rand_chacha::ChaCha12Rng;
-    let mut rng = ChaCha12Rng::from_entropy();
+    let mut rng = ChaCha12Rng::from_os_rng();
 
-    let x: u128 = rng.gen();
+    let x: u128 = rng.random();
     let mut y = Block::from(x);
     assert_eq!((x & 1) == 1, y.get_lsb());
 
@@ -589,7 +587,7 @@ fn lsb_test() {
 fn inn_prdt_test() {
     use rand::{Rng, SeedableRng};
     use rand_chacha::ChaCha12Rng;
-    let mut rng = ChaCha12Rng::from_entropy();
+    let mut rng = ChaCha12Rng::from_os_rng();
 
     const SIZE: usize = 1000;
     let mut a = Vec::new();
@@ -597,9 +595,9 @@ fn inn_prdt_test() {
     let mut c = (Block::default(), Block::default());
     let mut d = Block::default();
     for i in 0..SIZE {
-        let r: u128 = rng.gen();
+        let r: u128 = rng.random();
         a.push(Block::from(r));
-        let r: u128 = rng.gen();
+        let r: u128 = rng.random();
         b.push(Block::from(r));
 
         let z = a[i].clmul(&b[i]);
@@ -632,12 +630,12 @@ fn pow_inverse_test() {
 fn to_bytes_test() {
     use rand::{Rng, SeedableRng};
     use rand_chacha::ChaCha12Rng;
-    let mut rng = ChaCha12Rng::from_entropy();
+    let mut rng = ChaCha12Rng::from_os_rng();
 
-    let x: Block = rng.gen::<u128>().into();
+    let x: Block = rng.random::<u128>().into();
     assert_eq!(x, Block::try_from_slice(x.as_ref()).unwrap());
 
-    let mut y: Block = rng.gen::<u128>().into();
+    let mut y: Block = rng.random::<u128>().into();
     let _y = Block::try_from_slice(y.as_mut()).unwrap();
     assert_eq!(y, _y);
 }

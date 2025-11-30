@@ -1,5 +1,6 @@
-use criterion::{black_box, criterion_group, criterion_main, Criterion};
+use criterion::{criterion_group, criterion_main, Criterion};
 use emp_tool::{lpn::Lpn, prg::Prg, Block};
+use std::hint::black_box;
 use std::time::Duration;
 
 fn criterion_benchmark(c: &mut Criterion) {

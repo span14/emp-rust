@@ -1,21 +1,22 @@
-use criterion::{black_box, criterion_group, criterion_main, Criterion};
+use criterion::{criterion_group, criterion_main, Criterion};
+use std::hint::black_box;
 
 use emp_tool::block::Block;
 use rand::{Rng, SeedableRng};
 use rand_chacha::ChaCha12Rng;
 
 fn criterion_benchmark(c: &mut Criterion) {
-    let mut rng = ChaCha12Rng::from_entropy();
-    let a: [u8; 16] = rng.gen();
-    let b: [u8; 16] = rng.gen();
+    let mut rng = ChaCha12Rng::from_os_rng();
+    let a: [u8; 16] = rng.random();
+    let b: [u8; 16] = rng.random();
     let a = Block::new(&a);
     let b = Block::new(&b);
     const SIZE: usize = 1000;
     let mut x = Vec::new();
     let mut y = Vec::new();
     for _ in 0..SIZE {
-        x.push(Block::from(rng.gen::<u128>()));
-        y.push(Block::from(rng.gen::<u128>()));
+        x.push(Block::from(rng.random::<u128>()));
+        y.push(Block::from(rng.random::<u128>()));
     }
     let t = x.clone();
     let f = y.clone();

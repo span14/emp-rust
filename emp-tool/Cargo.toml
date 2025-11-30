@@ -6,21 +6,21 @@ edition = "2021"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-rand = { version = "0.8" }
-structopt = { version = "0.3.20" }
-rand_core = { version = "0.6.4" }
-bytemuck = {version = "1.13", features = ["derive"]}
-rayon = {version = "1.7.0"}
+rand = { version = "0.9" }
+structopt = { version = "0.3" }
+rand_core = { version = "0.9" }
+bytemuck = {version = "1.24", features = ["derive"]}
+rayon = {version = "1.11"}
 
 [target."cfg(target_arch = \"aarch64\")".dependencies]
-sha2 = { version = "0.10.7", features = ["asm"] }
+sha2 = { version = "0.10.9", features = ["asm"] }
 [target."cfg(any(target_arch = \"x86\", target_arch = \"x86_64\"))".dependencies]
-sha2 = {version = "0.10.7"}
+sha2 = {version = "0.10.9"}
 
 [dev-dependencies]
-rand = { version = "0.8" }
-rand_chacha = { version = "0.3" }
-criterion = { version = "0.5.1" }
+rand = { version = "0.9" }
+rand_chacha = { version = "0.9" }
+criterion = { version = "0.7" }
 
 [[bench]]
 name = "block"
