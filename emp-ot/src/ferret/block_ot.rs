@@ -1,5 +1,5 @@
-use crate::{Channel, IknpReceiver, IknpSender};
 use crate::ferret::spcot::BlockOt;
+use crate::{Channel, IknpReceiver, IknpSender};
 use emp_tool::Block;
 use std::io::Result;
 

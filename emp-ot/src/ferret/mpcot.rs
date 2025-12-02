@@ -2,7 +2,7 @@ use crate::ferret::block_ot::{IknpBlockOtReceiver, IknpBlockOtSender};
 use crate::ferret::spcot::{SpcotReceiver, SpcotSender};
 use crate::ferret::twokeyprp::TwoKeyPrp;
 use crate::{BaseOtRecv, BaseOtSend, Channel, IknpReceiver, IknpSender};
-use emp_tool::{prg::Prg, Block};
+use emp_tool::{Block, prg::Prg};
 use rand::SeedableRng;
 use sha2::Digest;
 use std::io::Result;
@@ -114,7 +114,12 @@ where
             self.chi_agg.push(chi_agg);
             self.w_tags.push(w_tag);
         }
-        Ok((outs, self.w_tags.clone(), self.chi_alpha.clone(), self.consistency_hash()))
+        Ok((
+            outs,
+            self.w_tags.clone(),
+            self.chi_alpha.clone(),
+            self.consistency_hash(),
+        ))
     }
 
     pub fn consistency_hash(&self) -> [u8; 32] {
@@ -171,8 +176,13 @@ mod tests {
         };
         let prg_seed = Block::from(0x1234u128);
         let pre_cot = vec![Block::ZERO; 128];
-        let mut sender =
-            MpcotSender::new_from_config(Block::from(0x55u128), iknp_s, config, prg_seed, pre_cot.clone());
+        let mut sender = MpcotSender::new_from_config(
+            Block::from(0x55u128),
+            iknp_s,
+            config,
+            prg_seed,
+            pre_cot.clone(),
+        );
         let mut receiver = MpcotReceiver::new_from_config(iknp_r, config, prg_seed, pre_cot);
         let hot_positions = vec![0, 1];
         let recv_thread = std::thread::spawn(move || receiver.recv(&hot_positions).unwrap());
