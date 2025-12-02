@@ -1,0 +1,11 @@
+[package]
+name = "emp-one-hot"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+emp_tool = { path = "../emp-tool" }
+rand = { version = "0.9", features = ["std"] }
+
+[dev-dependencies]
+rand_chacha = "0.9"
