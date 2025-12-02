@@ -1,0 +1,16 @@
+[package]
+name = "emp-circuit"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+emp_tool = { path = "../emp-tool" }
+crossbeam-channel = "0.5"
+emp-ot = { path = "../emp-ot", optional = true }
+
+[dev-dependencies]
+rand = "0.9"
+
+[features]
+default = []
+ot-input = ["emp-ot"]
