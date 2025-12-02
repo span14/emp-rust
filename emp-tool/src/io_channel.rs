@@ -1,5 +1,9 @@
 //! Define the trait for IO Channel, especially for network IO.
+mod file_io_channel;
+mod mem_io_channel;
 mod net_io_channel;
+pub use file_io_channel::FileIO;
+pub use mem_io_channel::MemIO;
 pub use net_io_channel::NetIO;
 
 use crate::{

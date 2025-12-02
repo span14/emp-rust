@@ -1,7 +1,8 @@
 [workspace]
 resolver = "2"
-members = ["emp-ot",
-    "emp-tool"
+members = ["emp-one-hot","emp-ot",
+    "emp-tool",
+    "emp-circuit"
 ]
 
 [profile.release]

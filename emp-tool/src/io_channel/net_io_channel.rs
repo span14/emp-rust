@@ -1,5 +1,4 @@
-// use crate::constants::NETWORK_BUFFER_SIZE;
-use crate::io_channel::IOChannel;
+use crate::{constants::NETWORK_BUFFER_SIZE, io_channel::IOChannel};
 use core::time;
 use std::io::{BufReader, BufWriter, Read, Result, Write};
 use std::net::{TcpListener, TcpStream, ToSocketAddrs};
@@ -9,7 +8,7 @@ use std::thread::sleep;
 /// This NetIO struct implements the IOChannel trait.
 pub struct NetIO {
     /// Indicate it is a server or a client.
-    _is_server: bool,
+    is_server: bool,
 
     /// A buffered reader that is used to receive messages.
     reader: BufReader<TcpStream>,
@@ -31,9 +30,6 @@ pub struct NetIO {
 }
 
 impl NetIO {
-    // Network buffer size, default `1MB`.
-    const NETWORK_BUFFER_SIZE: usize = 1024 * 1024;
-
     /// New a NetIO with socket address `addr`.\
     /// Determine the server with `is_server`.
     pub fn new<A: ToSocketAddrs + Copy>(is_server: bool, addr: A) -> Result<Self> {
@@ -64,12 +60,11 @@ impl NetIO {
             stream
         };
 
-        let reader =
-            BufReader::with_capacity(NetIO::NETWORK_BUFFER_SIZE, stream.try_clone().unwrap());
-        let writer = BufWriter::with_capacity(NetIO::NETWORK_BUFFER_SIZE, stream);
+        let reader = BufReader::with_capacity(NETWORK_BUFFER_SIZE, stream.try_clone().unwrap());
+        let writer = BufWriter::with_capacity(NETWORK_BUFFER_SIZE, stream);
 
         Ok(Self {
-            _is_server: is_server,
+            is_server,
             reader,
             writer,
             comm_cnt: 0,
@@ -77,6 +72,43 @@ impl NetIO {
             flush_cnt: 0,
             has_sent: false,
         })
+    }
+
+    /// Toggle TCP nodelay (Nagle) for the underlying socket.
+    pub fn set_nodelay(&self, enabled: bool) -> Result<()> {
+        self.writer.get_ref().set_nodelay(enabled)?;
+        self.reader.get_ref().set_nodelay(enabled)?;
+        Ok(())
+    }
+
+    /// Synchronize the channel with a one-byte handshake.
+    pub fn sync(&mut self) -> Result<()> {
+        let mut token = [0u8; 1];
+        if self.is_server {
+            self.send_bytes(&token)?;
+            self.flush()?;
+            self.recv_bytes(&mut token)?;
+        } else {
+            self.recv_bytes(&mut token)?;
+            self.send_bytes(&token)?;
+            self.flush()?;
+        }
+        Ok(())
+    }
+
+    /// Bytes sent so far.
+    pub fn bytes_sent(&self) -> usize {
+        self.comm_cnt
+    }
+
+    /// Number of round trips observed (send followed by recv).
+    pub fn round_trips(&self) -> usize {
+        self.round_cnt
+    }
+
+    /// Number of flushes performed.
+    pub fn flushes(&self) -> usize {
+        self.flush_cnt
     }
 }
 

@@ -11,6 +11,7 @@ structopt = { version = "0.3" }
 rand_core = { version = "0.9" }
 bytemuck = {version = "1.24", features = ["derive"]}
 rayon = {version = "1.11"}
+p256 = { version = "0.13", default-features = true, features = ["arithmetic"] }
 
 [target."cfg(target_arch = \"aarch64\")".dependencies]
 sha2 = { version = "0.10.9", features = ["asm"] }

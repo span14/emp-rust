@@ -14,3 +14,7 @@ Cargo.lock
 *.pdb
 
 .vscode/
+
+include/
+
+spcot_diff.md
