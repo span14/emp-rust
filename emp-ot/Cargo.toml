@@ -1,0 +1,12 @@
+[package]
+name = "emp-ot"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+curve25519-dalek = { version = "4.1", default-features = false, features = ["alloc", "rand_core"] }
+emp_tool = { path = "../emp-tool" }
+rand = { version = "0.9", default-features = false, features = ["std"] }
+rand_core_06 = { package = "rand_core", version = "0.6", features = ["getrandom"] }
+sha2 = "0.10"
+rayon = "1.11"
